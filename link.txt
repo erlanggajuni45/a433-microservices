@@ -1,0 +1,1 @@
+ghcr.io/erlanggajuni45/item-app:v1
