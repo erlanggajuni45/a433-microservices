@@ -1,0 +1,32 @@
+# mendefinisikan versi docker-compose
+version: '2'
+
+# mendefinisikan service yang akan dijalankan
+services:
+  # service untuk item app (web service)
+  item-app:
+    # menggunakan image dari GitHub Container Registry yang sudah dibuat sebelumnya
+    image: ghcr.io/erlanggajuni45/item-app:v1
+    # memetakan port 8080 di dalam container ke port 80 di host
+    ports:
+      - '80:8080'
+    # memastikan service selalu restart jika terjadi kegagalan
+    restart: always
+    # memastikan service bergantung pada database agar tidak dijalankan sebelum database siap
+    depends_on:
+      - item-db
+
+  # service untuk database
+  item-db:
+    # menggunakan image resmi mongodb versi 3 dari Docker Hub
+    image: mongo:3
+    # menggunakan volume 'app-db' untuk menyimpan data database secara persisten
+    # diarahkan ke direktori /data/db di dalam container
+    volumes:
+      - app-db:/data/db
+    # menerapkan restart policy (sama seperti item-app service)
+    restart: always
+
+# mendefinisikan volume yang akan digunakan untuk menyimpan data 'item-db' secara persistem
+volumes:
+  app-db:
