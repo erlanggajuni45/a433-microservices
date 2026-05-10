@@ -12,12 +12,12 @@ jobs:
 
   test-app:
     docker:
-      - image: golang:1.15-alpine # Gambar Docker yang digunakan untuk menjalankan tes aplikasi, menggunakan Go 1.15 di Alpine Linux
+      - image: golang:1.15 # Gambar Docker yang digunakan untuk menjalankan tes aplikasi, menggunakan Go 1.15
     steps:
       - checkout # Langkah untuk memeriksa kode sumber dari repository
       - run:
           name: Run Tests # Nama langkah untuk menjalankan tes aplikasi
-          command: go test -v -short --count=1 $(go list ./...)
+          command: CGO_ENABLED=0 go test -v -short --count=1 $(go list ./...)
 
   build-app-karsajobs:
     docker:
