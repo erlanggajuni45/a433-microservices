@@ -1,0 +1,38 @@
+version: 2.1 # Versi konfigurasi CircleCI yang digunakan
+
+jobs: # Daftar pekerjaan (jobs) yang akan dijalankan di CircleCI
+  lint-dockerfile: # Nama pekerjaan untuk linting Dockerfile
+    docker: # Lingkungan Docker yang digunakan untuk menjalankan pekerjaan ini
+      - image: cimg/base:stable # Image dasar CircleCI yang memiliki /bin/sh untuk menjalankan langkah run
+    steps: # Langkah-langkah yang akan dijalankan dalam pekerjaan ini
+      - checkout # Langkah untuk memeriksa kode sumber dari repository
+      - run: # Langkah untuk menjalankan perintah di dalam container job
+          name: Install Hadolint # Instal binary Hadolint di dalam container job
+          command:
+            | # Perintah untuk mengunduh dan menginstal Hadolint, alat linting untuk Dockerfile
+            wget -O ./hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 # Perintah untuk mengunduh binary Hadolint versi 2.12.0 dari GitHub
+            chmod +x ./hadolint # Perintah untuk memberikan izin eksekusi pada file Hadolint yang telah diunduh
+      - run: # Langkah untuk menjalankan linting pada Dockerfile menggunakan Hadolint
+          name: Lint Dockerfile # Nama langkah untuk linting Dockerfile
+          command: ./hadolint Dockerfile # Perintah untuk menjalankan Hadolint pada file Dockerfile
+  build-app-karsajobs-ui: # Nama pekerjaan untuk membangun aplikasi Karsa Jobs UI
+    docker: # Lingkungan Docker yang digunakan untuk menjalankan pekerjaan ini
+      - image: docker:latest # Gambar Docker yang digunakan untuk membangun aplikasi, menggunakan Docker terbaru
+    steps: # Langkah-langkah yang akan dijalankan dalam pekerjaan ini
+      - checkout # Langkah untuk memeriksa kode sumber dari repository
+      - setup_remote_docker # Langkah untuk mengatur lingkungan Docker remote agar dapat membangun gambar Docker
+      - run: # Langkah untuk membangun gambar Docker untuk aplikasi Karsa Jobs UI dan mendorongnya ke GitHub Container Registry
+          name: Build Karsa Jobs UI App # Nama langkah untuk membangun aplikasi Karsa Jobs UI
+          command:
+            | # Perintah untuk membangun gambar Docker untuk aplikasi Karsa Jobs UI dan mendorongnya ke GitHub Container Registry
+            echo $GITHUB_TOKEN | docker login ghcr.io -u erlanggajuni45 --password-stdin # Perintah untuk login ke GitHub Container Registry menggunakan token akses pribadi
+            docker build -t ghcr.io/erlanggajuni45/karsajobs-ui:latest . # Perintah untuk membangun gambar Docker untuk aplikasi Karsa Jobs UI dan menandainya dengan tag terbaru
+            docker push ghcr.io/erlanggajuni45/karsajobs-ui:latest # Perintah untuk mendorong gambar Docker yang telah dibangun ke GitHub Container Registry
+
+workflows: # Daftar alur kerja (workflows) yang mengatur bagaimana pekerjaan dijalankan
+  lint-and-build: # Nama alur kerja untuk linting dan membangun aplikasi
+    jobs: # Daftar pekerjaan yang akan dijalankan dalam alur kerja ini
+      - lint-dockerfile # Menjalankan pekerjaan linting Dockerfile
+      - build-app-karsajobs-ui: # Menjalankan pekerjaan pembangunan (buiid) aplikasi Karsa Jobs UI
+          requires: # Menentukan bahwa pekerjaan build-app-karsajobs-ui hanya akan dijalankan jika pekerjaan lint-dockerfile berhasil
+            - lint-dockerfile # Pekerjaan build-app-karsajobs-ui hanya akan dijalankan jika lint-dockerfile berhasil
