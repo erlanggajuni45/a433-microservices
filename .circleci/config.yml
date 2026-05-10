@@ -3,21 +3,26 @@ version: 2.1
 jobs:
   lint-dockerfile:
     docker:
-      - image: hadolint/hadolint:latest # Gambar Docker yang digunakan untuk linting Dockerfile, menggunakan Hadolint
+      - image: cimg/base:stable # Image dasar CircleCI yang memiliki /bin/sh untuk menjalankan langkah run
     steps:
       - checkout # Langkah untuk memeriksa kode sumber dari repository
+      - run:
+          name: Install Hadolint # Instal binary Hadolint di dalam container job
+          command: |
+            wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
+            chmod +x /usr/local/bin/hadolint
       - run:
           name: Lint Dockerfile # Nama langkah untuk linting Dockerfile
           command: hadolint Dockerfile # Perintah untuk menjalankan Hadolint pada file Dockerfile
 
   test-app:
     docker:
-      - image: golang:1.15 # Gambar Docker yang digunakan untuk menjalankan tes aplikasi, menggunakan Go 1.15
+      - image: golang:1.15 # Gambar Docker yang digunakan untuk menjalankan tes aplikasi, menggunakan Go 1.15 di Alpine Linux
     steps:
       - checkout # Langkah untuk memeriksa kode sumber dari repository
       - run:
           name: Run Tests # Nama langkah untuk menjalankan tes aplikasi
-          command: CGO_ENABLED=0 go test -v -short --count=1 $(go list ./...)
+          command: go test -v -short --count=1 $(go list ./...)
 
   build-app-karsajobs:
     docker:
