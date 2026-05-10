@@ -32,12 +32,12 @@ jobs:
             docker build -t ghcr.io/erlanggajuni45/karsajobs:latest . # Perintah untuk membangun gambar Docker untuk aplikasi Karsa Jobs dan menandainya dengan tag terbaru
             docker push ghcr.io/erlanggajuni45/karsajobs:latest # Perintah untuk mendorong gambar Docker yang telah dibangun ke GitHub Container Registry
 
-  workflows:
-    build-and-test:
-      jobs:
-        - lint-dockerfile # Menjalankan pekerjaan linting Dockerfile
-        - test-app # Menjalankan pekerjaan pengujian aplikasi
-        - build-app-karsajobs: # Menjalankan pekerjaan pembangunan (buiid) aplikasi Karsa Jobs
-            requires:
-              - lint-dockerfile # Pekerjaan build-app-karsajobs hanya akan dijalankan jika lint-dockerfile berhasil
-              - test-app # Pekerjaan build-app-karsajobs hanya akan dijalankan jika test-app berhasil
+workflows:
+  build-and-test:
+    jobs:
+      - lint-dockerfile # Menjalankan pekerjaan linting Dockerfile
+      - test-app # Menjalankan pekerjaan pengujian aplikasi
+      - build-app-karsajobs: # Menjalankan pekerjaan pembangunan (buiid) aplikasi Karsa Jobs
+          requires:
+            - lint-dockerfile # Pekerjaan build-app-karsajobs hanya akan dijalankan jika lint-dockerfile berhasil
+            - test-app # Pekerjaan build-app-karsajobs hanya akan dijalankan jika test-app berhasil
