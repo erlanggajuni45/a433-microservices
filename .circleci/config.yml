@@ -1,0 +1,43 @@
+version: 2.1
+
+jobs:
+  lint-dockerfile:
+    docker:
+      - image: hadolint/hadolint:latest # Gambar Docker yang digunakan untuk linting Dockerfile, menggunakan Hadolint
+    steps:
+      - checkout # Langkah untuk memeriksa kode sumber dari repository
+      - run:
+          name: Lint Dockerfile # Nama langkah untuk linting Dockerfile
+          command: hadolint Dockerfile # Perintah untuk menjalankan Hadolint pada file Dockerfile
+
+  test-app:
+    docker:
+      - image: golang:1.15-alpine # Gambar Docker yang digunakan untuk menjalankan tes aplikasi, menggunakan Go 1.15 di Alpine Linux
+    steps:
+      - checkout # Langkah untuk memeriksa kode sumber dari repository
+      - run:
+          name: Run Tests # Nama langkah untuk menjalankan tes aplikasi
+          command: go test -v -short --count=1 $(go list ./...)
+
+  build-app-karsajobs:
+    docker:
+      - image: docker:latest # Gambar Docker yang digunakan untuk membangun aplikasi, menggunakan Docker terbaru
+    steps:
+      - checkout # Langkah untuk memeriksa kode sumber dari repository
+      - setup_remote_docker # Langkah untuk mengatur lingkungan Docker remote agar dapat membangun gambar Docker
+      - run:
+          name: Build Karsa Jobs App # Nama langkah untuk membangun aplikasi Karsa Jobs
+          command: |
+            echo $GITHUB_TOKEN | docker login ghcr.io -u erlanggajuni45 --password-stdin # Perintah untuk login ke GitHub Container Registry menggunakan token akses pribadi
+            docker build -t ghcr.io/erlanggajuni45/karsajobs:latest . # Perintah untuk membangun gambar Docker untuk aplikasi Karsa Jobs dan menandainya dengan tag terbaru
+            docker push ghcr.io/erlanggajuni45/karsajobs:latest # Perintah untuk mendorong gambar Docker yang telah dibangun ke GitHub Container Registry
+
+  workflows:
+    build-and-test:
+      jobs:
+        - lint-dockerfile # Menjalankan pekerjaan linting Dockerfile
+        - test-app # Menjalankan pekerjaan pengujian aplikasi
+        - build-app-karsajobs: # Menjalankan pekerjaan pembangunan (buiid) aplikasi Karsa Jobs
+            requires:
+              - lint-dockerfile # Pekerjaan build-app-karsajobs hanya akan dijalankan jika lint-dockerfile berhasil
+              - test-app # Pekerjaan build-app-karsajobs hanya akan dijalankan jika test-app berhasil
