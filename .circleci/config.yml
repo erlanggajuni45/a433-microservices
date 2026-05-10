@@ -1,48 +1,50 @@
-version: 2.1
+version: 2.1 # Versi konfigurasi CircleCI yang digunakan
 
-jobs:
-  lint-dockerfile:
-    docker:
+jobs: # Daftar pekerjaan (jobs) yang akan dijalankan di CircleCI
+  lint-dockerfile: # Nama pekerjaan untuk linting Dockerfile
+    docker: # Lingkungan Docker yang digunakan untuk menjalankan pekerjaan ini
       - image: cimg/base:stable # Image dasar CircleCI yang memiliki /bin/sh untuk menjalankan langkah run
-    steps:
+    steps: # Langkah-langkah yang akan dijalankan dalam pekerjaan ini
       - checkout # Langkah untuk memeriksa kode sumber dari repository
-      - run:
+      - run: # Langkah untuk menjalankan perintah di dalam container job
           name: Install Hadolint # Instal binary Hadolint di dalam container job
-          command: |
-            wget -O ./hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
-            chmod +x ./hadolint
-      - run:
+          command:
+            | # Perintah untuk mengunduh dan menginstal Hadolint, alat linting untuk Dockerfile
+            wget -O ./hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 # Perintah untuk mengunduh binary Hadolint versi 2.12.0 dari GitHub
+            chmod +x ./hadolint # Perintah untuk memberikan izin eksekusi pada file Hadolint yang telah diunduh
+      - run: # Langkah untuk menjalankan linting pada Dockerfile menggunakan Hadolint
           name: Lint Dockerfile # Nama langkah untuk linting Dockerfile
           command: ./hadolint Dockerfile # Perintah untuk menjalankan Hadolint pada file Dockerfile
 
-  test-app:
-    docker:
+  test-app: # Nama pekerjaan untuk menjalankan tes aplikasi
+    docker: # Lingkungan Docker yang digunakan untuk menjalankan pekerjaan ini
       - image: golang:1.15 # Gambar Docker yang digunakan untuk menjalankan tes aplikasi, menggunakan Go 1.15 di Alpine Linux
-    steps:
+    steps: # Langkah-langkah yang akan dijalankan dalam pekerjaan ini
       - checkout # Langkah untuk memeriksa kode sumber dari repository
-      - run:
+      - run: # Langkah untuk menjalankan tes aplikasi menggunakan perintah go test
           name: Run Tests # Nama langkah untuk menjalankan tes aplikasi
-          command: go test -v -short --count=1 $(go list ./...)
+          command: go test -v -short --count=1 $(go list ./...) # Perintah untuk menjalankan tes Go dengan opsi verbose, short, dan count=1 untuk memastikan tes dijalankan sekali saja pada semua paket dalam modul Go
 
-  build-app-karsajobs:
-    docker:
+  build-app-karsajobs: # Nama pekerjaan untuk membangun aplikasi Karsa Jobs
+    docker: # Lingkungan Docker yang digunakan untuk menjalankan pekerjaan ini
       - image: docker:latest # Gambar Docker yang digunakan untuk membangun aplikasi, menggunakan Docker terbaru
-    steps:
+    steps: # Langkah-langkah yang akan dijalankan dalam pekerjaan ini
       - checkout # Langkah untuk memeriksa kode sumber dari repository
       - setup_remote_docker # Langkah untuk mengatur lingkungan Docker remote agar dapat membangun gambar Docker
-      - run:
+      - run: # Langkah untuk membangun gambar Docker untuk aplikasi Karsa Jobs dan mendorongnya ke GitHub Container Registry
           name: Build Karsa Jobs App # Nama langkah untuk membangun aplikasi Karsa Jobs
-          command: |
+          command:
+            | # Perintah untuk membangun gambar Docker untuk aplikasi Karsa Jobs dan mendorongnya ke GitHub Container Registry
             echo $GITHUB_TOKEN | docker login ghcr.io -u erlanggajuni45 --password-stdin # Perintah untuk login ke GitHub Container Registry menggunakan token akses pribadi
             docker build -t ghcr.io/erlanggajuni45/karsajobs:latest . # Perintah untuk membangun gambar Docker untuk aplikasi Karsa Jobs dan menandainya dengan tag terbaru
             docker push ghcr.io/erlanggajuni45/karsajobs:latest # Perintah untuk mendorong gambar Docker yang telah dibangun ke GitHub Container Registry
 
-workflows:
-  build-and-test:
-    jobs:
+workflows: # Daftar alur kerja (workflows) yang mengatur bagaimana pekerjaan dijalankan
+  build-and-test: # Nama alur kerja untuk membangun dan menguji aplikasi
+    jobs: # Daftar pekerjaan yang akan dijalankan dalam alur kerja ini
       - lint-dockerfile # Menjalankan pekerjaan linting Dockerfile
       - test-app # Menjalankan pekerjaan pengujian aplikasi
       - build-app-karsajobs: # Menjalankan pekerjaan pembangunan (buiid) aplikasi Karsa Jobs
-          requires:
+          requires: # Menentukan bahwa pekerjaan build-app-karsajobs hanya akan dijalankan jika pekerjaan lint-dockerfile dan test-app berhasil
             - lint-dockerfile # Pekerjaan build-app-karsajobs hanya akan dijalankan jika lint-dockerfile berhasil
             - test-app # Pekerjaan build-app-karsajobs hanya akan dijalankan jika test-app berhasil
