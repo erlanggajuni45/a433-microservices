@@ -1,0 +1,54 @@
+apiVersion: apps/v1 # Versi API Kubernetes yang dipakai untuk object StatefulSet
+kind: StatefulSet # Menandakan bahwa file ini membuat StatefulSet
+metadata: # Metadata untuk StatefulSet
+  name: mongo # Nama StatefulSet yang akan dipakai oleh object lain saat referensi
+  labels: # Label tambahan untuk identifikasi object ini
+    app: mongo # Label aplikasi MongoDB
+    tier: database # Label tambahan untuk mengelompokkan StatefulSet ini sebagai bagian dari tier
+spec:
+  selector: # Selector ini harus cocok dengan label pada pod MongoDB
+    matchLabels:
+      app: mongo # Mengarah ke pod yang punya label app=mongo
+      tier: database # Label tambahan untuk mengelompokkan StatefulSet ini sebagai bagian dari tier database
+  serviceName: 'mongo' # Nama Service yang akan dipakai untuk mengakses pod Mongo
+  replicas: 1 # Jumlah replika pod MongoDB yang akan dibuat
+  minReadySeconds: 10 # Waktu tunggu dalam detik setelah pod dianggap siap sebelum membuat replika berikutnya
+  template: # Template untuk pod yang akan dibuat oleh StatefulSet
+    metadata: # Metadata untuk pod
+      labels: # Label tambahan untuk identifikasi pod ini
+        app: mongo # Label aplikasi MongoDB, harus cocok dengan selector di atas
+        tier: database # Label tambahan untuk mengelompokkan pod ini sebagai bagian dari tier database
+    spec: # Spesifikasi untuk pod
+      terminationGracePeriodSeconds: 10 # Waktu tunggu dalam detik untuk proses terminasi pod
+      containers: # Daftar container yang akan dijalankan di dalam pod
+        - image: mongo:4.4 # Gambar Docker yang digunakan untuk container MongoDB, versi 4.4
+          name: mongo # Nama container, harus unik di dalam pod
+          ports:
+            - containerPort: 27017 # Port yang dibuka oleh container MongoDB, sesuai dengan port default MongoDB
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME_FILE # Nama variabel lingkungan untuk username MongoDB, menggunakan _FILE untuk membaca dari Secret
+              value: /etc/mongo-credentials/MONGO_ROOT_USERNAME # Lokasi file di dalam container yang berisi username MongoDB, sesuai dengan nama key di Secret
+            - name: MONGO_INITDB_ROOT_PASSWORD_FILE # Nama variabel lingkungan untuk password MongoDB, menggunakan _FILE untuk membaca dari Secret
+              value: /etc/mongo-credentials/MONGO_ROOT_PASSWORD # Lokasi file di dalam container yang berisi password MongoDB, sesuai dengan nama key di Secret
+          volumeMounts: # Daftar volume yang akan dipasang ke dalam container
+            - name: mongo-persistent-storage # Nama volume yang akan dipasang, harus sesuai dengan nama volume yang didefinisikan di bawah
+              mountPath: /data/db # Lokasi di dalam container tempat volume akan dipasang, sesuai dengan dbPath di konfigurasi MongoDB
+            - name: mongo-config # Nama volume untuk konfigurasi MongoDB, harus sesuai dengan nama volume yang didefinisikan di bawah
+              mountPath: /config # Lokasi di dalam container tempat file konfigurasi MongoDB akan dipasang
+            - name: mongo-credentials # Nama volume untuk kredensial MongoDB, harus sesuai dengan nama volume yang didefinisikan di bawah
+              mountPath: /etc/mongo-credentials # Lokasi di dalam container tempat file kredensial MongoDB akan dipasang
+      volumes: # Daftar volume yang akan digunakan oleh pod
+        - name: mongo-persistent-storage # Nama volume, harus sesuai dengan nama volume yang dipasang di container
+          persistentVolumeClaim: # Spesifikasi untuk menggunakan PersistentVolumeClaim sebagai sumber volume
+            claimName: mongo-pvc # Nama PersistentVolumeClaim yang akan digunakan, harus sesuai dengan nama PVC yang dibuat di mongo-pv-pvc.yml
+        - name: mongo-config # Nama volume untuk konfigurasi MongoDB, harus sesuai dengan nama volume yang dipasang di container
+          configMap: # Spesifikasi untuk menggunakan ConfigMap sebagai sumber volume
+            name: mongo-config # Nama ConfigMap yang akan digunakan, harus sesuai dengan nama ConfigMap
+        - name: mongo-credentials # Nama volume untuk kredensial MongoDB, harus sesuai dengan nama volume yang dipasang di container
+          secret: # Spesifikasi untuk menggunakan Secret sebagai sumber volume
+            secretName: mongo-secret # Nama Secret yang akan digunakan, harus sesuai dengan nama Secret yang dibuat di mongo-secret.yml
+            items: # Daftar item yang akan dipilih dari Secret untuk dimasukkan ke dalam volume
+              - key: MONGO_ROOT_USERNAME # Key di dalam Secret yang akan dipilih, harus sesuai dengan nama key di Secret
+                path: MONGO_ROOT_USERNAME # Nama file yang akan dibuat di dalam volume untuk key ini, harus sesuai dengan nama variabel lingkungan yang digunakan di container
+              - key: MONGO_ROOT_PASSWORD # Key di dalam Secret yang akan dipilih, harus sesuai dengan nama key di Secret
+                path: MONGO_ROOT_PASSWORD # Nama file yang akan dibuat di dalam volume untuk key ini, harus sesuai dengan nama variabel lingkungan yang digunakan di container

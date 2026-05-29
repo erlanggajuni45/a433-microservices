@@ -1,0 +1,17 @@
+apiVersion: v1 # Versi API Kubernetes yang dipakai untuk object Service
+kind: Service # Menandakan bahwa file ini membuat Service
+metadata: # Metadata untuk Service
+  name: karsajobs-ui # Nama Service yang akan dipakai object lain saat referensi
+  labels: # Label tambahan untuk identifikasi object ini
+    app: karsajobs-ui # Label aplikasi frontend Karsa Jobs
+    tier: frontend # Label tambahan untuk mengelompokkan Service ini sebagai bagian dari tier frontend
+spec: # Spesifikasi untuk Service
+  type: NodePort # Service diekspos lewat port node agar bisa diakses dari luar cluster lokal
+  selector: # Selector ini harus cocok dengan label pada pod frontend
+    app: karsajobs-ui # Mengarah ke pod yang punya label app=karsajobs-ui
+    tier: frontend # Label tambahan untuk mengelompokkan Service ini sebagai bagian dari tier frontend
+  ports: # Daftar port yang dibuka oleh Service
+    - protocol: TCP # Protokol komunikasi yang digunakan oleh Service
+      port: 8000 # Port Service di dalam cluster, biasanya 8000 untuk frontend
+      targetPort: 8000 # Port container frontend yang dituju Service, sesuai dengan port yang dibuka oleh container frontend di Deployment
+      nodePort: 30002 # Port yang dibuka pada node untuk akses dari luar cluster, bisa diakses melalui <Node_IP>:30002

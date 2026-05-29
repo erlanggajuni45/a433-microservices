@@ -1,0 +1,9 @@
+apiVersion: v1 # Versi API Kubernetes yang dipakai untuk object Service
+kind: ConfigMap # Menandakan bahwa file ini membuat ConfigMap
+metadata: # Metadata untuk ConfigMap
+  name: mongo-config # Nama ConfigMap yang akan dipakai oleh pod MongoDB
+data: # Data yang disimpan dalam ConfigMap, berupa key-value
+  mongo.conf:
+    | # Key untuk file konfigurasi MongoDB, nilainya adalah isi file yang akan dibuat di dalam container
+    storage:
+      dbPath: /data/db # Lokasi penyimpanan data MongoDB di dalam container

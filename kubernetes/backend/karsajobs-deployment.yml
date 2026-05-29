@@ -1,0 +1,40 @@
+apiVersion: apps/v1 # Versi API Kubernetes yang dipakai untuk object Deployment
+kind: Deployment # Menandakan bahwa file ini membuat Deployment
+metadata: # Metadata untuk Deployment
+  name: karsajobs # Nama Deployment yang akan dipakai object lain saat referensi
+  labels: # Label tambahan untuk identifikasi object ini
+    app: karsajobs # Label aplikasi backend Karsa Jobs
+    tier: backend # Label tambahan untuk mengelompokkan Deployment ini sebagai bagian dari tier backend
+spec: # Spesifikasi untuk Deployment
+  replicas: 1 # Jumlah replika pod yang diinginkan
+  selector: # Selector untuk menentukan pod mana yang termasuk dalam Deployment ini, harus cocok dengan label pada template pod
+    matchLabels: # Label yang harus cocok dengan label pada template pod agar Deployment ini dapat mengelola pod tersebut
+      app: karsajobs # Mengarah ke pod yang punya label app=karsajobs
+      tier: backend # Label tambahan untuk mengelompokkan Deployment ini sebagai bagian dari tier backend
+  template: # Template untuk pod yang akan dibuat oleh Deployment
+    metadata: # Metadata untuk pod
+      labels: # Label tambahan untuk identifikasi pod ini, harus cocok dengan selector di atas
+        app: karsajobs # Label aplikasi backend Karsa Jobs, harus cocok dengan selector di atas
+        tier: backend # Label tambahan untuk mengelompokkan pod ini sebagai bagian dari tier backend, harus cocok dengan selector di atas
+    spec: # Spesifikasi untuk pod
+      containers: # Daftar container yang akan dijalankan di dalam pod
+        - name: karsajobs # Nama container
+          image: ghcr.io/erlanggajuni45/karsajobs:latest # Gambar Docker yang digunakan untuk container backend Karsa Jobs
+          imagePullPolicy: IfNotPresent # Kebijakan penarikan gambar, IfNotPresent berarti hanya menarik gambar jika belum ada di node
+          ports: # Daftar port yang dibuka oleh container
+            - containerPort: 8080 # Port yang dibuka oleh container backend, sesuai dengan port yang digunakan di aplikasi
+          env: # Daftar variabel lingkungan yang akan diset di dalam container
+            - name: APP_PORT # Nama variabel lingkungan untuk port aplikasi, bisa digunakan oleh aplikasi untuk menentukan port yang akan didengarkan
+              value: '8080' # Nilai variabel lingkungan untuk port aplikasi, harus sesuai dengan port yang dibuka oleh container
+            - name: MONGO_HOST # Nama variabel lingkungan untuk host MongoDB, bisa digunakan oleh aplikasi untuk menentukan alamat MongoDB yang akan dihubungi
+              value: 'mongo' # Nilai variabel lingkungan untuk host MongoDB, harus sesuai dengan nama Service MongoDB yang dibuat di mongo-service.yml
+            - name: MONGO_USER # Nama variabel lingkungan untuk username MongoDB, bisa digunakan oleh aplikasi untuk menentukan username yang akan digunakan untuk mengakses MongoDB
+              valueFrom: # Nilai variabel lingkungan untuk username MongoDB diambil dari Secret, menggunakan valueFrom untuk merujuk ke sumber lain
+                secretKeyRef: # Spesifikasi untuk mengambil nilai dari Secret
+                  name: mongo-secret # Nama Secret yang akan digunakan, harus sesuai dengan nama Secret yang dibuat di mongo-secret.yml
+                  key: MONGO_ROOT_USERNAME # Key di dalam Secret yang akan dipilih, harus sesuai dengan nama key di Secret
+            - name: MONGO_PASS # Nama variabel lingkungan untuk password MongoDB, bisa digunakan oleh aplikasi untuk menentukan password yang akan digunakan untuk mengakses MongoDB
+              valueFrom: # Nilai variabel lingkungan untuk password MongoDB diambil dari Secret, menggunakan valueFrom untuk merujuk ke sumber lain
+                secretKeyRef: # Spesifikasi untuk mengambil nilai dari Secret
+                  name: mongo-secret # Nama Secret yang akan digunakan, harus sesuai dengan nama Secret yang dibuat di mongo-secret.yml
+                  key: MONGO_ROOT_PASSWORD # Key di dalam Secret yang akan dipilih, harus sesuai dengan nama key di Secret

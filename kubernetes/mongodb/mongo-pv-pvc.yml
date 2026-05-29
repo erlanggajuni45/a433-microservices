@@ -1,0 +1,26 @@
+apiVersion: v1 # Versi API Kubernetes yang dipakai untuk object Service
+kind: PersistentVolume # Menandakan bahwa file ini membuat PersistentVolume
+metadata: # Metadata untuk PersistentVolume
+  name: mongo-pv # Nama PersistentVolume yang akan dipakai oleh PersistentVolumeClaim
+  labels: # Label tambahan untuk identifikasi object ini
+    type: local # Label untuk menandakan bahwa PV ini menggunakan storage lokal
+spec: # Spesifikasi untuk PersistentVolume
+  storageClassName: local-storage # Nama StorageClass yang digunakan, harus sesuai dengan yang dipakai di PVC
+  capacity: # Kapasitas penyimpanan yang disediakan oleh PV ini
+    storage: 10Gi # Kapasitas penyimpanan sebesar 10 Gigabyte
+  accessModes: # Mode akses yang didukung oleh PV ini
+    - ReadWriteOnce # PV ini hanya bisa diakses untuk membaca dan menulis oleh satu node
+  hostPath: # Spesifikasi untuk menggunakan storage lokal di node
+    path: /mnt/data # Lokasi path di node host yang akan digunakan sebagai storage untuk PV ini
+---
+apiVersion: v1 # Versi API Kubernetes yang dipakai untuk object Service
+kind: PersistentVolumeClaim # Menandakan bahwa file ini membuat PersistentVolumeClaim
+metadata: # Metadata untuk PersistentVolumeClaim
+  name: mongo-pvc # Nama PersistentVolumeClaim yang akan dipakai oleh pod MongoDB
+spec: # Spesifikasi untuk PersistentVolumeClaim
+  storageClassName: local-storage # Nama StorageClass yang digunakan, harus sesuai dengan yang dipakai di PV
+  accessModes: # Mode akses yang diminta oleh PVC inii
+    - ReadWriteOnce # PVC ini hanya bisa diakses untuk membaca dan menulis oleh satu node
+  resources: # Sumber daya yang diminta oleh PVC ini
+    requests:
+      storage: 10Gi # Kapasitas penyimpanan yang diminta sebesar 10 Gigabyte, harus sesuai dengan kapasitas yang disediakan oleh PV yang cocok

@@ -1,0 +1,15 @@
+apiVersion: v1 # Versi API Kubernetes yang dipakai untuk object Service
+kind: Service # Menandakan bahwa file ini membuat Service
+metadata:
+  name: mongo # Nama Service yang akan dipakai object lain saat referensi
+  labels: # Label tambahan untuk identifikasi object ini
+    app: mongo # Label aplikasi MongoDB
+    tier: database # Label tambahan untuk mengelompokkan Service ini sebagai bagian dari tier database
+spec:
+  type: ClusterIP # Service ini hanya bisa diakses dari dalam cluster, tidak diekspos ke luar
+  ports:
+    - port: 27017 # Port Service di dalam cluster, sesuai dengan port default MongoDB
+      targetPort: 27017 # Port container MongoDB yang dituju Service
+  selector: # Selector ini harus cocok dengan label pada pod MongoDB
+    app: mongo # Mengarah ke pod yang punya label app=mongo
+    tier: database # Label tambahan untuk mengelompokkan Service ini sebagai bagian dari tier database

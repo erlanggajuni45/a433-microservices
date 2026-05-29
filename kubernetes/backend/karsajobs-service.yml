@@ -1,0 +1,16 @@
+apiVersion: v1 # Versi API Kubernetes yang dipakai untuk object Service
+kind: Service # Menandakan bahwa file ini membuat Service
+metadata:
+  labels: # Label tambahan untuk identifikasi object ini
+    app: karsajobs # Label aplikasi backend Karsa Jobs
+  name: karsajobs # Nama Service yang akan dipakai object lain saat referensi
+spec:
+  type: NodePort # Service diekspos lewat port node agar bisa diakses dari luar cluster lokal
+  selector: # Selector ini harus cocok dengan label pada pod backend
+    app: karsajobs # Mengarah ke pod yang punya label app=karsajobs
+    tier: backend # Label tambahan untuk mengelompokkan Service ini sebagai bagian dari tier backend
+  ports: # Daftar port yang dibuka oleh Service
+    - protocol: TCP # Protokol komunikasi yang digunakan oleh Service
+      port: 8080 # Port Service di dalam cluster
+      targetPort: 8080 # Port container backend yang dituju Service
+      nodePort: 30001 # Port yang dibuka pada node untuk akses dari luar cluster

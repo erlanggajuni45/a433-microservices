@@ -1,0 +1,25 @@
+apiVersion: apps/v1 # Versi API Kubernetes yang dipakai untuk object Deployment
+kind: Deployment # Menandakan bahwa file ini membuat Deployment
+metadata: # Metadata untuk Deployment
+  name: karsajobs-ui # Nama Deployment yang akan dipakai object lain saat referensi
+  labels: # Label tambahan untuk identifikasi object ini
+    app: karsajobs-ui # Label aplikasi frontend Karsa Jobs
+    tier: frontend # Label tambahan untuk mengelompokkan Deployment ini sebagai bagian dari tier frontend
+spec: # Spesifikasi untuk Deployment
+  replicas: 1 # Jumlah replika pod yang diinginkan
+  selector: # Selector untuk menentukan pod mana yang termasuk dalam Deployment ini, harus cocok dengan label pada template pod
+    matchLabels: # Label yang harus cocok dengan label pada template pod agar Deployment ini dapat mengelola pod tersebut
+      app: karsajobs-ui # Mengarah ke pod yang punya label app=karsajobs-ui
+      tier: frontend # Label tambahan untuk mengelompokkan Deployment ini sebagai bagian dari tier frontend
+  template: # Template untuk pod yang akan dibuat oleh Deployment
+    metadata: # Metadata untuk pod
+      labels: # Label tambahan untuk identifikasi pod ini, harus cocok dengan selector di atas
+        app: karsajobs-ui # Label aplikasi frontend Karsa Jobs, harus cocok dengan selector di atas
+        tier: frontend # Label tambahan untuk mengelompokkan pod ini sebagai bagian dari tier frontend, harus cocok dengan selector di atas
+    spec: # Spesifikasi untuk pod
+      containers: # Daftar container yang akan dijalankan di dalam pod
+        - name: karsajobs-ui # Nama container
+          image: ghcr.io/erlanggajuni45/karsajobs-ui:latest # Gambar Docker yang digunakan untuk container frontend Karsa Jobs
+          imagePullPolicy: IfNotPresent # Kebijakan penarikan gambar, IfNotPresent berarti hanya menarik gambar jika belum ada di node
+          ports: # Daftar port yang dibuka oleh container
+            - containerPort: 8000 # Port yang dibuka oleh container frontend, sesuai dengan port yang digunakan di aplikasi
