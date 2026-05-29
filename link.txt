@@ -1,3 +1,2 @@
 ghcr.io/erlanggajuni45/karsajobs:latest
 ghcr.io/erlanggajuni45/karsajobs-ui:latest
-as
