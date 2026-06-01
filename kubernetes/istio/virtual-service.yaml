@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3 # Versi API untuk objek Istio VirtualService
+kind: VirtualService # Jenis objek yang akan dibuat adalah VirtualService
+metadata: # Metadata dari VirtualService yang akan dibuat
+  name: ecommerce-order-route # Nama dari VirtualService yang akan dibuat
+  namespace: ecommerce # Namespace tempat VirtualService akan dibuat
+spec: # Spesifikasi dari VirtualService
+  hosts: # Daftar host yang akan dilayani oleh VirtualService, dalam hal ini menggunakan wildcard untuk melayani semua host
+    - '*' # Host yang akan dilayani oleh VirtualService, menggunakan wildcard untuk melayani semua host
+  gateways: # Daftar Gateway yang akan digunakan oleh VirtualService, dalam hal ini menggunakan Gateway yang sudah dibuat sebelumnya dengan nama ecommerce-gateway
+    - ecommerce-gateway # Nama Gateway yang akan digunakan oleh VirtualService
+  http: # Daftar aturan HTTP yang akan diterapkan oleh VirtualService
+    - match: # Daftar aturan pencocokan untuk lalu lintas HTTP yang masuk, dalam hal ini mencocokkan permintaan dengan URI yang tepat
+        - uri: # Aturan pencocokan untuk URI, dalam hal ini mencocokkan permintaan dengan URI yang tepat
+            exact: /order # Aturan pencocokan untuk URI, mencocokkan permintaan dengan URI yang tepat yaitu /order
+      route: # Daftar aturan routing untuk lalu lintas HTTP yang masuk, dalam hal ini mengarahkan permintaan ke layanan order-service pada port 3000
+        - destination: # Aturan routing untuk lalu lintas HTTP yang masuk, mengarahkan permintaan ke layanan order-service pada port 3000
+            host: order-service # Nama layanan yang akan dituju untuk permintaan yang cocok dengan aturan pencocokan, dalam hal ini order-service
+            port: # Port yang akan dituju pada layanan untuk permintaan yang cocok dengan aturan pencocokan
+              number: 3000 # Nomor port yang akan dituju pada layanan untuk permintaan yang cocok dengan aturan pencocokan, dalam hal ini port 3000
