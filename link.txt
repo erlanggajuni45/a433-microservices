@@ -1,0 +1,2 @@
+ghcr.io/erlanggajuni45/shipping-service:latest
+ghcr.io/erlanggajuni45/order-service:latest
