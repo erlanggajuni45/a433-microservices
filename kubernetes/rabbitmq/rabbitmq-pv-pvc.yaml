@@ -2,14 +2,15 @@ apiVersion: v1 # Versi API kubernetes
 kind: PersistentVolume # Jenis objek yang akan dibuat adalah PersistentVolume
 metadata: # Metadata dari PersistentVolume yang akan dibuat
   name: rabbitmq-pv # Nama dari PersistentVolume yang akan dibuat
-  labels: # Label yang akan diterapkan pada PersistentVolume yang dibuat
-    type: local # Label yang akan diterapkan pada PersistentVolume yang dibuat
 spec: # Spesifikasi dari PersistentVolume
-  storageClassName: local-storage # Nama StorageClass yang akan digunakan untuk PersistentVolume ini
   capacity: # Kapasitas penyimpanan yang akan disediakan oleh PersistentVolume ini
-    storage: 1Gi # Kapasitas penyimpanan yang akan disediakan oleh Persistent
+    storage: 1Gi # Kapasitas penyimpanan yang akan disediakan oleh PersistentVolume ini
   accessModes: # Mode akses yang akan diterapkan pada PersistentVolume ini
     - ReadWriteOnce # Mode akses yang akan diterapkan pada PersistentVolume ini
+  persistentVolumeReclaimPolicy: Retain # Data tetap disimpan ketika PVC dilepas
+  storageClassName: rabbitmq-manual # Nama StorageClass untuk PV manual ini
+  hostPath: # Volume type untuk environment lokal/minikube
+    path: /data/rabbitmq # Lokasi data RabbitMQ di node minikube
 ---
 apiVersion: v1 # Versi API kubernetes
 kind: PersistentVolumeClaim # Jenis objek yang akan dibuat adalah PersistentVolumeClaim
@@ -17,10 +18,10 @@ metadata: # Metadata dari PersistentVolumeClaim yang akan dibuat
   name: rabbitmq-pvc # Nama dari PersistentVolumeClaim yang akan dibuat
   namespace: messaging # Namespace tempat PersistentVolumeClaim akan dibuat
 spec: # Spesifikasi dari PersistentVolumeClaim
-  storageClassName: local-storage # Nama StorageClass yang akan digunakan untuk PersistentVolumeClaim ini
+  storageClassName: rabbitmq-manual # StorageClass yang harus cocok dengan PV manual
+  volumeName: rabbitmq-pv # Mengikat PVC ini ke PV rabbitmq-pv
   accessModes: # Mode akses yang akan diterapkan pada PersistentVolumeClaim ini
     - ReadWriteOnce # Mode akses yang akan diterapkan pada PersistentVolumeClaim ini
   resources: # Sumber daya yang akan diminta oleh PersistentVolumeClaim ini
     requests: # Permintaan sumber daya yang akan diminta oleh PersistentVolumeClaim ini
       storage: 1Gi # Permintaan kapasitas penyimpanan yang akan diminta oleh PersistentVolumeClaim ini
-
