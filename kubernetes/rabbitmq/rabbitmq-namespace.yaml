@@ -1,0 +1,4 @@
+apiVersion: vq # Versi API kubernetes
+kind: Namespace # Jenis objek yang akan dibuat adalah Namespace
+metadata: # Metadata dari Namespace yang akan dibuat
+  name: messaging # Nama dari Namespace yang akan dibuat adalah messaging
