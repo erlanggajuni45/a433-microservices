@@ -15,6 +15,13 @@ spec: # Spesifikasi dari Deployment
       labels: # Label yang akan diterapkan pada Pod yang dibuat
         app: order-service # Label yang menunjukkan bahwa Pod ini adalah untuk aplikasi order-service
     spec: # Spesifikasi dari Pod yang akan dibuat
+      initContainers: # Daftar init container yang akan dijalankan sebelum container utama dijalankan
+        - name: wait-for-rabbitmq # Nama init container
+          image: busybox:1.36 # Gambar Docker yang akan digunakan untuk init container, menggunakan BusyBox untuk menjalankan perintah sederhana
+          command: # Perintah yang akan dijalankan dalam init container untuk menunggu RabbitMQ siap
+            - sh # Perintah shell untuk menjalankan perintah berikutnya
+            - -c # Opsi untuk menjalankan perintah dalam mode shell
+            - until nc -z rabbitmq.ecommerce.svc.cluster.local 5672; do echo waiting for rabbitmq; sleep 2; done # Perintah untuk memeriksa koneksi ke RabbitMQ pada port 5672, jika belum siap akan menunggu dan mencoba lagi setiap 2 detik
       containers: # Daftar container yang akan dijalankan dalam Pod
         - name: order-service # Nama container
           image: ghcr.io/erlanggajuni45/order-service:latest # Gambar Docker yang akan digunakan untuk container
