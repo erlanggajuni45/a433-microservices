@@ -1,0 +1,29 @@
+apiVersion: apps/v1 # Versi API kubernetes untuk StatefulSet
+kind: StatefulSet # Jenis objek yang akan dibuat adalah StatefulSet
+metadata: # Metadata dari StatefulSet yang akan dibuat
+  name: rabbitmq # Nama dari StatefulSet yang akan dibuat
+  namespace: messaging # Namespace tempat StatefulSet akan dibuat
+spec: # Spesifikasi dari StatefulSet
+  serviceName: 'rabbitmq' # Nama layanan yang akan digunakan untuk mengakses StatefulSet
+  replicas: 1 # Jumlah replika yang akan dibuat
+  selector: # Selector untuk memilih Pod yang akan dikelola oleh StatefulSet
+    matchLabels: # Label yang harus dimiliki oleh Pod yang akan dikelola
+      app: rabbitmq # Label yang harus dimiliki oleh Pod yang akan dikelola
+  template: # Template untuk Pod yang akan dibuat oleh StatefulSet
+    metadata: # Metadata dari Pod yang akan dibuat
+      labels: # Label yang akan diterapkan pada Pod yang dibuat
+        app: rabbitmq # Label yang akan diterapkan pada Pod yang dibuat
+    spec:
+      containers: # Daftar container yang akan dijalankan dalam Pod
+        - name: rabbitmq # Nama container
+          image: rabbitmq:3.11-management # Gambar Docker yang akan digunakan untuk container
+          ports: # Daftar port yang akan dibuka oleh container
+            - containerPort: 5672 # Port untuk komunikasi dengan RabbitMQ
+            - containerPort: 15672 # Port untuk akses ke RabbitMQ Management UI
+          envFrom: # Sumber environment variable untuk container
+            - secretRef: # Referensi ke Secret yang akan digunakan sebagai sumber environment variable
+                name: rabbitmq-secret # Nama Secret yang akan digunakan sebagai sumber environment variable
+      volumes: # Daftar volume yang akan dipasang ke container
+        - name: rabbitmq-data # Nama volume
+          persistentVolumeClaim: # Referensi ke PersistentVolumeClaim
+            claimName: rabbitmq-pvc # Nama PersistentVolumeClaim yang akan digunakan
