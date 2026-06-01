@@ -1,0 +1,26 @@
+apiVersion: apps/v1 # Versi API Kubernetes yang digunakan untuk mendefinisikan objek Deployment
+kind: Deployment # Jenis objek yang akan dibuat adalah Deployment
+metadata: # Metadata dari Deployment yang akan dibuat
+  name: order-service # Nama dari Deployment yang akan dibuat
+  namespace: ecommerce # Namespace tempat Deployment akan dibuat
+  labels: # Label yang akan diterapkan pada Deployment
+    app: order-service # Label yang menunjukkan bahwa Deployment ini adalah untuk aplikasi order-service
+spec: # Spesifikasi dari Deployment
+  replicas: 1 # Jumlah replika yang akan dibuat untuk Deployment ini
+  selector: # Selector untuk memilih Pod yang akan dikelola oleh Deployment
+    matchLabels: # Label yang harus dimiliki oleh Pod yang akan dikelola oleh Deployment
+      app: order-service # Label yang menunjukkan bahwa Pod ini adalah untuk aplikasi order-service
+  template: # Template untuk Pod yang akan dibuat oleh Deployment
+    metadata: # Metadata dari Pod yang akan dibuat
+      labels: # Label yang akan diterapkan pada Pod yang dibuat
+        app: order-service # Label yang menunjukkan bahwa Pod ini adalah untuk aplikasi order-service
+    spec: # Spesifikasi dari Pod yang akan dibuat
+      containers: # Daftar container yang akan dijalankan dalam Pod
+        - name: order-service # Nama container
+          image: ghcr.io/erlanggajuni45/order-service:latest # Gambar Docker yang akan digunakan untuk container
+          imagePullPolicy: IfNotPresent # Kebijakan untuk menarik gambar Docker, IfNotPresent berarti hanya akan menarik gambar jika belum ada di node
+          ports: # Daftar port yang akan dibuka oleh container
+            - containerPort: 3000 # Port yang akan dibuka oleh container untuk komunikasi dengan aplikasi
+          env: # Daftar environment variable yang akan diterapkan pada container
+            - name: AMQP_URL # Nama environment variable yang akan digunakan dalam aplikasi untuk mengakses RabbitMQ
+              value: 'amqp://appuser:password123@rabbitmq.ecommerce.svc.cluster.local:5672' # Nilai dari environment variable AMQP_URL yang berisi URL koneksi ke RabbitMQ, menggunakan nama layanan dan namespace untuk mengakses RabbitMQ dalam cluster Kubernetes
