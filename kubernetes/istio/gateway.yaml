@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1alpha3 # Versi API untuk objek Istio Gateway
+kind: Gateway # Jenis objek yang akan dibuat adalah Gateway
+metadata: # Metadata dari Gateway yang akan dibuat
+  name: ecommerce-gateway # Nama dari Gateway yang akan dibuat
+  namespace: ecommerce # Namespace tempat Gateway akan dibuat
+spec: # Spesifikasi dari Gateway
+  selector: # Selector untuk memilih Gateway yang akan digunakan, dalam hal ini menggunakan label istio: ingressgateway yang biasanya digunakan untuk Gateway yang disediakan oleh Istio
+    istio: ingressgateway # Label yang harus dimiliki oleh Gateway yang akan digunakan
+  servers: # Daftar server yang akan dikonfigurasi pada Gateway
+    - port: # Port yang akan digunakan untuk menerima lalu lintas, dalam hal ini port 80 untuk HTTP
+        number: 80 # Nomor port yang akan digunakan untuk menerima lalu lintas
+        name: http # Nama port, bisa digunakan untuk referensi dalam konfigurasi lainnya
+        protocol: HTTP # Protokol yang akan digunakan untuk komunikasi, dalam hal ini HTTP
+      hosts: # Daftar host yang akan dilayani oleh Gateway, dalam hal ini menggunakan wildcard untuk melayani semua host
+        - '*' # Host yang akan dilayani oleh Gateway, menggunakan wildcard untuk melayani semua host
