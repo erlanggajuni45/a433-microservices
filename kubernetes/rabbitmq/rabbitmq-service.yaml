@@ -1,0 +1,15 @@
+apiVersion: v1 # Versi API kubernetes
+kind: Service # Jenis objek yang akan dibuat adalah Service
+metadata: # Metadata dari Service yang akan dibuat
+  name: rabbitmq # Nama dari Service yang akan dibuat
+  namespace: messaging # Namespace tempat Service akan dibuat
+spec: # Spesifikasi dari Service
+  selector: # Selector untuk memilih Pod yang akan dilayani oleh Service
+    app: rabbitmq # Label yang harus dimiliki oleh Pod yang akan dilayani oleh Service
+  ports: # Daftar port yang akan dibuka oleh Service
+    - name: amqp # Nama port untuk komunikasi dengan RabbitMQ
+      port: 5672 # Port yang akan dibuka oleh Service untuk komunikasi dengan RabbitMQ
+      targetPort: 5672 # Port yang akan dituju pada Pod untuk komunikasi dengan Rabbit
+    - name: management # Nama port untuk akses ke RabbitMQ Management UI
+      port: 15672 # Port yang akan dibuka oleh Service untuk akses ke RabbitMQ
+      targetPort: 15672 # Port yang akan dituju pada Pod untuk akses ke RabbitMQ Management UI
