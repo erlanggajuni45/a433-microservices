@@ -2,7 +2,7 @@ apiVersion: v1 # Versi API kubernetes
 kind: Service # Jenis objek yang akan dibuat adalah Service
 metadata: # Metadata dari Service yang akan dibuat
   name: rabbitmq # Nama dari Service yang akan dibuat
-  namespace: messaging # Namespace tempat Service akan dibuat
+  namespace: ecommerce # Namespace tempat Service akan dibuat
 spec: # Spesifikasi dari Service
   selector: # Selector untuk memilih Pod yang akan dilayani oleh Service
     app: rabbitmq # Label yang harus dimiliki oleh Pod yang akan dilayani oleh Service

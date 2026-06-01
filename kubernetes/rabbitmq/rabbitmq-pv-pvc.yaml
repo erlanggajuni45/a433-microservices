@@ -16,7 +16,7 @@ apiVersion: v1 # Versi API kubernetes
 kind: PersistentVolumeClaim # Jenis objek yang akan dibuat adalah PersistentVolumeClaim
 metadata: # Metadata dari PersistentVolumeClaim yang akan dibuat
   name: rabbitmq-pvc # Nama dari PersistentVolumeClaim yang akan dibuat
-  namespace: messaging # Namespace tempat PersistentVolumeClaim akan dibuat
+  namespace: ecommerce # Namespace tempat PersistentVolumeClaim akan dibuat
 spec: # Spesifikasi dari PersistentVolumeClaim
   storageClassName: rabbitmq-manual # StorageClass yang harus cocok dengan PV manual
   volumeName: rabbitmq-pv # Mengikat PVC ini ke PV rabbitmq-pv

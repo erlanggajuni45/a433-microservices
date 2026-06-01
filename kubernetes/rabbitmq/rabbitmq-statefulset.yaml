@@ -2,7 +2,7 @@ apiVersion: apps/v1 # Versi API kubernetes untuk StatefulSet
 kind: StatefulSet # Jenis objek yang akan dibuat adalah StatefulSet
 metadata: # Metadata dari StatefulSet yang akan dibuat
   name: rabbitmq # Nama dari StatefulSet yang akan dibuat
-  namespace: messaging # Namespace tempat StatefulSet akan dibuat
+  namespace: ecommerce # Namespace tempat StatefulSet akan dibuat
 spec: # Spesifikasi dari StatefulSet
   serviceName: 'rabbitmq' # Nama layanan yang akan digunakan untuk mengakses StatefulSet
   replicas: 1 # Jumlah replika yang akan dibuat
