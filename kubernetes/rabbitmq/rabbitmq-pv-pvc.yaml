@@ -1,0 +1,26 @@
+apiVersion: v1 # Versi API kubernetes
+kind: PersistentVolume # Jenis objek yang akan dibuat adalah PersistentVolume
+metadata: # Metadata dari PersistentVolume yang akan dibuat
+  name: rabbitmq-pv # Nama dari PersistentVolume yang akan dibuat
+  labels: # Label yang akan diterapkan pada PersistentVolume yang dibuat
+    type: local # Label yang akan diterapkan pada PersistentVolume yang dibuat
+spec: # Spesifikasi dari PersistentVolume
+  storageClassName: local-storage # Nama StorageClass yang akan digunakan untuk PersistentVolume ini
+  capacity: # Kapasitas penyimpanan yang akan disediakan oleh PersistentVolume ini
+    storage: 1Gi # Kapasitas penyimpanan yang akan disediakan oleh Persistent
+  accessModes: # Mode akses yang akan diterapkan pada PersistentVolume ini
+    - ReadWriteOnce # Mode akses yang akan diterapkan pada PersistentVolume ini
+---
+apiVersion: v1 # Versi API kubernetes
+kind: PersistentVolumeClaim # Jenis objek yang akan dibuat adalah PersistentVolumeClaim
+metadata: # Metadata dari PersistentVolumeClaim yang akan dibuat
+  name: rabbitmq-pvc # Nama dari PersistentVolumeClaim yang akan dibuat
+  namespace: messaging # Namespace tempat PersistentVolumeClaim akan dibuat
+spec: # Spesifikasi dari PersistentVolumeClaim
+  storageClassName: local-storage # Nama StorageClass yang akan digunakan untuk PersistentVolumeClaim ini
+  accessModes: # Mode akses yang akan diterapkan pada PersistentVolumeClaim ini
+    - ReadWriteOnce # Mode akses yang akan diterapkan pada PersistentVolumeClaim ini
+  resources: # Sumber daya yang akan diminta oleh PersistentVolumeClaim ini
+    requests: # Permintaan sumber daya yang akan diminta oleh PersistentVolumeClaim ini
+      storage: 1Gi # Permintaan kapasitas penyimpanan yang akan diminta oleh PersistentVolumeClaim ini
+
